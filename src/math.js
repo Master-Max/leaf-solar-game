@@ -9,12 +9,6 @@ export const smoothstep = (t) => t * t * (3 - 2 * t);
 /** Frame-rate independent exponential approach of `a` towards `b`. */
 export const approach = (a, b, rate, dt) => lerp(a, b, 1 - Math.exp(-rate * dt));
 
-/** Interpolate angles the short way round. */
-export function lerpAngle(a, b, t) {
-  const d = (((b - a + Math.PI) % TAU) + TAU) % TAU - Math.PI;
-  return a + d * t;
-}
-
 // --- deterministic noise -----------------------------------------------
 
 function hash1(i) {

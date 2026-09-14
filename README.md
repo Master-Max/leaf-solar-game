@@ -13,17 +13,29 @@ Stay off the ground for as long as you can.
 
 | | |
 |---|---|
-| `A` `D` / `←` `→` | Lean left and right |
-| `S` / `↓` | **Tuck** — dive fast, steer sharply, rocket up a beam |
-| `W` / `space` | **Spread** — hang in the air and let the wind carry you |
+| `A` `D` / `←` `→` | Turn the blade. **That is the only control.** |
 | `R` | Restart |
 | `M` | Mute |
 
-Touch works too: drag to lean, drag down to tuck, drag up to spread.
+Touch works too: drag left or right to turn the blade.
+
+How the leaf flies is decided entirely by the angle you hold it at:
+
+| Blade angle | Sink | What it is good for |
+|---|---|---|
+| flat (parallel to the ground) | 150 px/s | Hanging in the air. The wind slides past an edge-on blade, so you drift but slowly. |
+| tilted ~15° | 186 px/s | Best glide — 1.1 forward for every 1 down. This is how you cross a gap. |
+| tilted 45° | 422 px/s | Committed descent that still carries you sideways. |
+| edge-on (perpendicular) | 561 px/s | Nothing to catch the air. You drop like a stone — and inside a beam you climb like one. |
+
+Tilt right and you glide east with the wind; tilt left and you claw your way
+west against it, paying for it in altitude. The force always acts along the
+blade's face, which is why a tilted leaf is pushed sideways as well as up.
 
 The tension is that the wind is always pushing you east, so holding station
-inside a beam long enough to drain it costs you distance. Tucking triples your
-climb rate but makes you fall like a stone the moment you leave the light.
+inside a beam long enough to drain it costs you distance. Going edge-on
+multiplies your climb rate inside the light, but the same angle makes you fall
+like a stone the moment you leave it.
 
 ## Running it locally
 
@@ -79,7 +91,10 @@ Almost everything worth changing lives in `src/config.js`:
 - `BEAM.reach` is how far up and down a column the leaf can pull light in. It is
   deliberately large, so the beam dissolves around the leaf instead of only
   directly under it.
-- `PHYS.drag*` are quadratic coefficients chosen from terminal speeds: 215 px/s
-  gliding, 540 tucked, 115 spread.
-- `PHYS.steer*` against `PHYS.sail*` decides whether the player can hold station
-  in a beam against the wind. They currently can, at the cost of forward speed.
+- `PHYS.faceDrag` and `PHYS.edgeDrag` are the whole flight model. Force is
+  computed against the air (not the ground) and applied along the blade's
+  normal, so glide, sink, and how hard the wind shoves you all fall out of the
+  one angle. The ratio between them sets the spread of sink rates; the absolute
+  values set the speeds (`sqrt(gravity / coefficient)` is the terminal sink).
+- `PHYS.maxAngularVel` and `PHYS.angularRate` decide how quickly the player can
+  change attitude — the only authority they have.
