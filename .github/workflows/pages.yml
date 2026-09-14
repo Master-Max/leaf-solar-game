@@ -2,7 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    # The repository was created empty, so GitHub made the first pushed branch
+    # the default. Both are listed until this settles on one.
+    branches: [main, claude/keen-faraday-ln41m1]
   workflow_dispatch:
 
 # Allow the workflow to publish to Pages.
