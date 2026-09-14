@@ -37,11 +37,18 @@ python3 -m http.server 8000
 
 ## Deploying
 
-`.github/workflows/pages.yml` publishes the repository root to GitHub Pages. It
-passes `enablement: true` to `actions/configure-pages`, so the first run switches
-Pages on by itself — no visit to Settings required. After that it runs on every
-push to the branches listed in its `on:` block, and can also be started from the
-Actions tab via *Run workflow*.
+`.github/workflows/pages.yml` publishes the repository root to GitHub Pages.
+Pages has to be switched on once, by hand:
+
+> **Settings → Pages → Build and deployment → Source: GitHub Actions**
+
+This step cannot be automated: a workflow's `GITHUB_TOKEN` is allowed to deploy
+to an existing Pages site but not to create one, so `configure-pages` fails with
+*Resource not accessible by integration* until someone with admin on the
+repository flips that switch.
+
+After that the workflow runs on every push to the branches listed in its `on:`
+block, and can also be started from the Actions tab via *Run workflow*.
 
 ## Layout
 
