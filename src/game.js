@@ -1,4 +1,4 @@
-import { BEAM, LEAF, PX_PER_M, TREE, WIND } from './config.js';
+import { BEAM, LEAF, PX_PER_M, TREE } from './config.js';
 import { clamp, TAU } from './math.js';
 import { createCamera } from './camera.js';
 import { createLeaf, drawLeaf } from './leaf.js';
@@ -14,15 +14,6 @@ function readBest() {
 }
 function writeBest(v) {
   try { localStorage.setItem(BEST_KEY, String(v)); } catch { /* private mode */ }
-}
-
-/**
- * Tailwind at a given altitude: steady and stronger up high. No gusting — the
- * player should be able to predict the air exactly.
- */
-function windAt(y) {
-  const alt = clamp(-y, 0, WIND.altitudeCap);
-  return WIND.base + alt * WIND.perAltitude;
 }
 
 export class Game {
@@ -114,11 +105,11 @@ export class Game {
       this.leaf.angle = 0.2 + Math.sin(this.time * 1.1) * 0.25;
     } else if (this.state === 'flying') {
       const command = this.input.read(this.lastScreenPos);
-      this.leaf.update(dt, command, windAt(this.leaf.y));
+      this.leaf.update(dt, command);
       this.harvest(dt);
       this.peakAltitude = Math.max(this.peakAltitude, -this.leaf.y);
       if (this.leaf.y >= groundY(this.leaf.x) - LEAF.radius * 0.4) this.die();
-      this.audio.updateWind(this.leaf.airspeed);
+      this.audio.updateWind(this.leaf.speed);
     } else if (this.state === 'dying') {
       this.deathTimer += dt;
       this.leaf.x += this.leaf.vx * dt * 0.1;

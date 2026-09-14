@@ -9,13 +9,12 @@ export function createLeaf(x, y) {
     angle: 0,
     angularVel: 0,
     steer: 0,
-    airspeed: 0,
     /** 0..1 how brightly the leaf is glowing from absorbed light. */
     charge: 0,
 
     get speed() { return Math.hypot(this.vx, this.vy); },
 
-    update(dt, input, windX) {
+    update(dt, input) {
       this.steer = approach(this.steer, input.steer, PHYS.steerRate, dt);
 
       // Attitude is the whole control scheme: the player rotates the blade and
@@ -29,15 +28,9 @@ export function createLeaf(x, y) {
       const tx = Math.cos(this.angle);
       const ty = Math.sin(this.angle);
 
-      // Everything aerodynamic is relative to the moving air, which is what
-      // makes the wind push a broadside leaf hard and an edge-on leaf barely
-      // at all — no separate "sail" term needed.
-      const rx = this.vx - windX;
-      const ry = this.vy;
-      this.airspeed = Math.hypot(rx, ry);
-
-      const vn = rx * nx + ry * ny;
-      const vt = rx * tx + ry * ty;
+      // The air is still, so airspeed is just how fast the leaf is going.
+      const vn = this.vx * nx + this.vy * ny;
+      const vt = this.vx * tx + this.vy * ty;
       const fn = -PHYS.faceDrag * vn * Math.abs(vn);
       const ft = -PHYS.edgeDrag * vt * Math.abs(vt);
 
