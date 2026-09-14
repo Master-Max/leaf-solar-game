@@ -24,10 +24,6 @@ export const PHYS = {
 export const LEAF = {
   radius: 13,
   drawScale: 1.9,
-  // A falling leaf never holds perfectly still. Small enough that the player
-  // can still read the blade's angle at a glance.
-  flutterFreq: 1.15,
-  flutterTorque: 0.9,
 };
 
 export const BEAM = {
@@ -55,8 +51,6 @@ export const WIND = {
   /** Extra px/s of tailwind per pixel of altitude. */
   perAltitude: 0.045,
   altitudeCap: 3000,
-  gust: 45,
-  gustRate: 0.22,
 };
 
 export const TERRAIN = {

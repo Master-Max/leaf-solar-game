@@ -9,7 +9,6 @@ export function createLeaf(x, y) {
     angle: 0,
     angularVel: 0,
     steer: 0,
-    flutter: Math.random() * TAU,
     airspeed: 0,
     /** 0..1 how brightly the leaf is glowing from absorbed light. */
     charge: 0,
@@ -22,10 +21,7 @@ export function createLeaf(x, y) {
       // Attitude is the whole control scheme: the player rotates the blade and
       // the air does the rest.
       this.angularVel = approach(this.angularVel, this.steer * PHYS.maxAngularVel, PHYS.angularRate, dt);
-      this.flutter += dt * LEAF.flutterFreq * TAU;
-      // The wobble fades out as the player commits to an angle.
-      const wobble = Math.sin(this.flutter) * LEAF.flutterTorque * (1 - Math.abs(this.steer) * 0.8);
-      this.angle += (this.angularVel + wobble) * dt;
+      this.angle += this.angularVel * dt;
 
       // Blade frame: `n` is the face normal, `t` runs along the blade.
       const nx = Math.sin(this.angle);
