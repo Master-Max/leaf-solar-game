@@ -1,5 +1,5 @@
 import { BEAM, LEAF, PX_PER_M, TREE, WIND } from './config.js';
-import { clamp, fbm1, TAU } from './math.js';
+import { clamp, TAU } from './math.js';
 import { createCamera } from './camera.js';
 import { createLeaf, drawLeaf } from './leaf.js';
 import { BeamField } from './beams.js';
@@ -16,11 +16,13 @@ function writeBest(v) {
   try { localStorage.setItem(BEST_KEY, String(v)); } catch { /* private mode */ }
 }
 
-/** Tailwind at a given altitude — stronger up high, gusting over time. */
-function windAt(y, time) {
+/**
+ * Tailwind at a given altitude: steady and stronger up high. No gusting — the
+ * player should be able to predict the air exactly.
+ */
+function windAt(y) {
   const alt = clamp(-y, 0, WIND.altitudeCap);
-  const gust = (fbm1(time * WIND.gustRate + 5, 3) - 0.5) * 2 * WIND.gust;
-  return WIND.base + alt * WIND.perAltitude + gust;
+  return WIND.base + alt * WIND.perAltitude;
 }
 
 export class Game {
@@ -73,10 +75,12 @@ export class Game {
   launch() {
     if (this.state !== 'ready') return;
     this.state = 'flying';
-    // A gust plucks the leaf off the branch, already tipped into a glide.
-    this.leaf.vx = 130;
-    this.leaf.vy = -30;
-    this.leaf.angle = 0.3;
+    // The leaf simply lets go: at rest, flat, everything from here is the
+    // player's doing.
+    this.leaf.vx = 0;
+    this.leaf.vy = 0;
+    this.leaf.angle = 0;
+    this.leaf.angularVel = 0;
     this.audio.detach();
     this.particles.burst(this.leaf.x, this.leaf.y, 10, '124,191,79', 120);
     this.onStateChange(this.state, this.stats);
@@ -110,7 +114,7 @@ export class Game {
       this.leaf.angle = 0.2 + Math.sin(this.time * 1.1) * 0.25;
     } else if (this.state === 'flying') {
       const command = this.input.read(this.lastScreenPos);
-      this.leaf.update(dt, command, windAt(this.leaf.y, this.time));
+      this.leaf.update(dt, command, windAt(this.leaf.y));
       this.harvest(dt);
       this.peakAltitude = Math.max(this.peakAltitude, -this.leaf.y);
       if (this.leaf.y >= groundY(this.leaf.x) - LEAF.radius * 0.4) this.die();
