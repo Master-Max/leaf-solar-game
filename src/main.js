@@ -34,9 +34,10 @@ const audio = createAudio();
 
 const CONTROLS = `
   <div class="keys">
-    <div><kbd>A</kbd><kbd>D</kbd> / <kbd>←</kbd><kbd>→</kbd></div><div>Lean left and right</div>
-    <div><kbd>S</kbd> / <kbd>↓</kbd></div><div>Tuck — dive fast, steer sharp, rocket up a beam</div>
-    <div><kbd>W</kbd> / <kbd>space</kbd></div><div>Spread — hang in the air and let the wind carry you</div>
+    <div><kbd>A</kbd><kbd>D</kbd> / <kbd>←</kbd><kbd>→</kbd></div><div>Turn the blade. That is the only control.</div>
+    <div>flat</div><div>Broadside to the air — sinks slowest, but the wind slides past it</div>
+    <div>tilted</div><div>The face pushes sideways as well as up: this is your glide</div>
+    <div>edge&#8209;on</div><div>Nothing to catch the air — you drop like a stone, and climb like one inside a beam</div>
     <div><kbd>R</kbd></div><div>Restart &nbsp;·&nbsp; <kbd>M</kbd> mute</div>
   </div>`;
 
@@ -48,7 +49,7 @@ function readyCard() {
       Every sliver you swallow is gone for good.</p>
     ${CONTROLS}
     <button class="cta" id="go">Let go of the branch</button>
-    <p class="note">Touch works too: drag to lean, drag down to tuck, up to spread.</p>`;
+    <p class="note">Touch works too: drag left or right to turn the blade.</p>`;
 }
 
 function deadCard(s) {

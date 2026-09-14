@@ -73,9 +73,10 @@ export class Game {
   launch() {
     if (this.state !== 'ready') return;
     this.state = 'flying';
-    // A gust plucks the leaf off the branch.
+    // A gust plucks the leaf off the branch, already tipped into a glide.
     this.leaf.vx = 130;
     this.leaf.vy = -30;
+    this.leaf.angle = 0.3;
     this.audio.detach();
     this.particles.burst(this.leaf.x, this.leaf.y, 10, '124,191,79', 120);
     this.onStateChange(this.state, this.stats);
@@ -104,17 +105,16 @@ export class Game {
 
     if (this.state === 'ready') {
       // Leaf waits on the branch, trembling in the breeze.
-      this.leaf.flutter += dt * 2.2;
       this.leaf.x = TREE.perchX + Math.sin(this.time * 1.4) * 3;
       this.leaf.y = TREE.perchY + Math.sin(this.time * 1.9) * 2;
-      this.leaf.angle = Math.sin(this.time * 1.1) * 0.25;
+      this.leaf.angle = 0.2 + Math.sin(this.time * 1.1) * 0.25;
     } else if (this.state === 'flying') {
       const command = this.input.read(this.lastScreenPos);
       this.leaf.update(dt, command, windAt(this.leaf.y, this.time));
       this.harvest(dt);
       this.peakAltitude = Math.max(this.peakAltitude, -this.leaf.y);
       if (this.leaf.y >= groundY(this.leaf.x) - LEAF.radius * 0.4) this.die();
-      this.audio.updateWind(this.leaf.speed);
+      this.audio.updateWind(this.leaf.airspeed);
     } else if (this.state === 'dying') {
       this.deathTimer += dt;
       this.leaf.x += this.leaf.vx * dt * 0.1;

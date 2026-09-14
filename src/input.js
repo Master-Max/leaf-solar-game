@@ -1,10 +1,9 @@
 import { clamp } from './math.js';
 
 /**
- * Normalises keyboard, mouse and touch into three analogue axes:
- *   steer  -1 (left) .. 1 (right)
- *   tuck    0 .. 1   curl up: fast, streamlined, sharp steering
- *   spread  0 .. 1   flatten out: draggy, floaty, carried by the wind
+ * Normalises keyboard, mouse and touch into the game's single axis:
+ *   steer  -1 (rotate the blade left) .. 1 (rotate it right)
+ * The blade's resulting angle is what decides how the leaf flies.
  */
 export function createInput(canvas) {
   const keys = new Set();
@@ -57,30 +56,17 @@ export function createInput(canvas) {
 
     /**
      * @param {{x:number,y:number}} leafScreenPos where the leaf is drawn, so
-     *   pointer input can be read as "lean towards my finger".
+     *   pointer input can be read as "tip the blade towards my finger".
      */
     read(leafScreenPos) {
       let steer = 0;
       if (held('ArrowLeft', 'KeyA')) steer -= 1;
       if (held('ArrowRight', 'KeyD')) steer += 1;
-      let tuck = held('ArrowDown', 'KeyS') ? 1 : 0;
-      let spread = held('ArrowUp', 'KeyW', 'Space') ? 1 : 0;
 
       if (pointer.active && leafScreenPos) {
-        const dx = (pointer.x - leafScreenPos.x) / 190;
-        const dy = (pointer.y - leafScreenPos.y) / 190;
-        steer = clamp(steer + dx, -1, 1);
-        if (dy > 0) tuck = Math.max(tuck, clamp(dy, 0, 1));
-        else spread = Math.max(spread, clamp(-dy, 0, 1));
+        steer = clamp(steer + (pointer.x - leafScreenPos.x) / 150, -1, 1);
       }
-
-      // Tuck and spread are opposites; whichever is stronger wins.
-      if (tuck > 0 && spread > 0) {
-        const net = tuck - spread;
-        tuck = Math.max(0, net);
-        spread = Math.max(0, -net);
-      }
-      return { steer: clamp(steer, -1, 1), tuck, spread };
+      return { steer: clamp(steer, -1, 1) };
     },
   };
 }

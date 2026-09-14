@@ -1,50 +1,54 @@
 import { LEAF, PHYS } from './config.js';
-import { approach, clamp, lerpAngle, TAU } from './math.js';
+import { approach, clamp, TAU } from './math.js';
 
 export function createLeaf(x, y) {
   return {
     x, y,
     vx: 0, vy: 0,
-    tuck: 0,
-    spread: 0,
-    steer: 0,
+    /** Blade angle. 0 is parallel to the ground, ±PI/2 is edge-on. */
     angle: 0,
-    spin: 0,
+    angularVel: 0,
+    steer: 0,
     flutter: Math.random() * TAU,
+    airspeed: 0,
     /** 0..1 how brightly the leaf is glowing from absorbed light. */
     charge: 0,
 
     get speed() { return Math.hypot(this.vx, this.vy); },
 
     update(dt, input, windX) {
-      this.tuck = approach(this.tuck, input.tuck, PHYS.postureRate, dt);
-      this.spread = approach(this.spread, input.spread, PHYS.postureRate, dt);
-      this.steer = approach(this.steer, input.steer, 12, dt);
+      this.steer = approach(this.steer, input.steer, PHYS.steerRate, dt);
 
-      const { tuck, spread } = this;
-      const drag = PHYS.dragGlide
-        + (PHYS.dragTuck - PHYS.dragGlide) * tuck
-        + (PHYS.dragSpread - PHYS.dragGlide) * spread;
-      const steerAccel = PHYS.steerGlide
-        + (PHYS.steerTuck - PHYS.steerGlide) * tuck
-        + (PHYS.steerSpread - PHYS.steerGlide) * spread;
-      const sail = PHYS.sailGlide
-        + (PHYS.sailTuck - PHYS.sailGlide) * tuck
-        + (PHYS.sailSpread - PHYS.sailGlide) * spread;
+      // Attitude is the whole control scheme: the player rotates the blade and
+      // the air does the rest.
+      this.angularVel = approach(this.angularVel, this.steer * PHYS.maxAngularVel, PHYS.angularRate, dt);
+      this.flutter += dt * LEAF.flutterFreq * TAU;
+      // The wobble fades out as the player commits to an angle.
+      const wobble = Math.sin(this.flutter) * LEAF.flutterTorque * (1 - Math.abs(this.steer) * 0.8);
+      this.angle += (this.angularVel + wobble) * dt;
 
-      // Vertical: gravity fought by quadratic drag.
-      this.vy += (PHYS.gravity - drag * this.vy * Math.abs(this.vy)) * dt;
+      // Blade frame: `n` is the face normal, `t` runs along the blade.
+      const nx = Math.sin(this.angle);
+      const ny = -Math.cos(this.angle);
+      const tx = Math.cos(this.angle);
+      const ty = Math.sin(this.angle);
 
-      // Horizontal: the wind carries the leaf, the player nudges it.
-      this.vx = approach(this.vx, windX, sail, dt);
-      this.vx += this.steer * steerAccel * dt;
+      // Everything aerodynamic is relative to the moving air, which is what
+      // makes the wind push a broadside leaf hard and an edge-on leaf barely
+      // at all — no separate "sail" term needed.
+      const rx = this.vx - windX;
+      const ry = this.vy;
+      this.airspeed = Math.hypot(rx, ry);
 
-      // Natural flutter — a falling leaf never tracks straight. Steering and
-      // tucking both damp it, so deliberate flight feels precise.
-      this.flutter += dt * LEAF.flutterFreq * TAU * (0.6 + Math.abs(this.vy) / 420);
-      const damp = (1 - Math.abs(this.steer) * 0.7) * (1 - tuck * 0.85);
-      this.vx += Math.sin(this.flutter) * LEAF.flutterAccel * damp * dt;
-      this.vy += Math.cos(this.flutter * 0.5) * LEAF.flutterAccel * 0.25 * damp * dt;
+      const vn = rx * nx + ry * ny;
+      const vt = rx * tx + ry * ty;
+      const fn = -PHYS.faceDrag * vn * Math.abs(vn);
+      const ft = -PHYS.edgeDrag * vt * Math.abs(vt);
+
+      // The face force points along the normal, so a tilted blade is pushed
+      // sideways as well as up: that is the glide.
+      this.vx += (fn * nx + ft * tx) * dt;
+      this.vy += (fn * ny + ft * ty + PHYS.gravity) * dt;
 
       const speed = Math.hypot(this.vx, this.vy);
       if (speed > PHYS.maxSpeed) {
@@ -55,19 +59,11 @@ export function createLeaf(x, y) {
 
       this.x += this.vx * dt;
       this.y += this.vy * dt;
-
-      // Point roughly along the flight path, banked into the turn.
-      const heading = Math.atan2(this.vy, this.vx) + this.steer * 0.42;
-      this.angle = lerpAngle(this.angle, heading, clamp(7 * dt, 0, 1));
-      // Tucked leaves tumble.
-      this.spin += dt * LEAF.spinRate * TAU * tuck;
       this.charge = approach(this.charge, 0, 2.2, dt);
     },
 
-    /** Angle actually used for drawing: heading + tumble + flutter wobble. */
-    get renderAngle() {
-      return this.angle + this.spin + Math.sin(this.flutter) * 0.5 * (1 - this.tuck);
-    },
+    /** What gets drawn is the true blade angle — the player has to read it. */
+    get renderAngle() { return this.angle; },
   };
 }
 
@@ -76,8 +72,6 @@ export function drawLeaf(ctx, leaf) {
   ctx.save();
   ctx.translate(leaf.x, leaf.y);
   ctx.rotate(leaf.renderAngle);
-  // Tucking curls the leaf up: squash across the chord.
-  ctx.scale(1 + leaf.tuck * 0.18, 1 - leaf.tuck * 0.55 + leaf.spread * 0.08);
 
   if (leaf.charge > 0.01) {
     ctx.save();

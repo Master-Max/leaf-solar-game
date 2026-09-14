@@ -8,32 +8,26 @@ export const RAMP_METRES = 3000;
 
 export const PHYS = {
   gravity: 820,
-  // Quadratic drag coefficients, picked so terminal fall speed is
-  // 215 px/s gliding, 540 px/s tucked, 115 px/s spread wide.
-  dragGlide: 0.01774,
-  dragTuck: 0.00281,
-  dragSpread: 0.06200,
-  // Sideways acceleration the player commands by steering. Strong enough to
-  // hold station inside a beam, at the cost of making no forward progress.
-  steerGlide: 470,
-  steerTuck: 760,
-  steerSpread: 280,
-  // How eagerly the leaf is carried along by the wind (1/s).
-  sailGlide: 1.5,
-  sailTuck: 0.85,
-  sailSpread: 2.6,
+  // Flat-plate aerodynamics. A blade resists air hitting its face far more
+  // than air sliding along its edge, and that ratio is the whole game:
+  // terminal sink is 150 px/s held flat, 560 px/s held edge-on. The force acts
+  // along the blade's normal, so any tilt turns some of the fall into glide.
+  faceDrag: 0.03644,
+  edgeDrag: 0.00261,
+  // Attitude control: the player commands a rotation rate, not a force.
+  maxAngularVel: 3.4,
+  angularRate: 14,
+  steerRate: 16,
   maxSpeed: 1600,
-  // How fast tuck/spread inputs blend in and out.
-  postureRate: 9,
 };
 
 export const LEAF = {
   radius: 13,
   drawScale: 1.9,
-  // Natural flutter: a leaf never falls straight.
-  flutterAccel: 210,
-  flutterFreq: 1.9,
-  spinRate: 2.6,
+  // A falling leaf never holds perfectly still. Small enough that the player
+  // can still read the blade's angle at a glance.
+  flutterFreq: 1.15,
+  flutterTorque: 0.9,
 };
 
 export const BEAM = {
