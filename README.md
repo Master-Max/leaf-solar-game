@@ -37,13 +37,11 @@ python3 -m http.server 8000
 
 ## Deploying
 
-`.github/workflows/pages.yml` publishes the repository root to GitHub Pages.
-It needs Pages switched on once, by hand:
-
-> **Settings → Pages → Build and deployment → Source: GitHub Actions**
-
-After that the workflow runs on every push to the branches listed in its `on:`
-block, and can also be kicked off from the Actions tab via *Run workflow*.
+`.github/workflows/pages.yml` publishes the repository root to GitHub Pages. It
+passes `enablement: true` to `actions/configure-pages`, so the first run switches
+Pages on by itself — no visit to Settings required. After that it runs on every
+push to the branches listed in its `on:` block, and can also be started from the
+Actions tab via *Run workflow*.
 
 ## Layout
 
