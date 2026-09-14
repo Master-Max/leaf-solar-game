@@ -35,18 +35,20 @@ const audio = createAudio();
 const CONTROLS = `
   <div class="keys">
     <div><kbd>A</kbd><kbd>D</kbd> / <kbd>←</kbd><kbd>→</kbd></div><div>Turn the blade. That is the only control.</div>
-    <div>flat</div><div>Broadside to the air — sinks slowest, but the wind slides past it</div>
-    <div>tilted</div><div>The face pushes sideways as well as up: this is your glide</div>
+    <div>flat</div><div>Broadside to the air — the slowest way down, but it takes you nowhere</div>
+    <div>tilted</div><div>The face pushes sideways as well as down: this is your glide</div>
     <div>edge&#8209;on</div><div>Nothing to catch the air — you drop like a stone, and climb like one inside a beam</div>
+    <div>rising</div><div>The air now comes from below, so the same tilt carries you the <em>other</em> way</div>
     <div><kbd>R</kbd></div><div>Restart &nbsp;·&nbsp; <kbd>M</kbd> mute</div>
   </div>`;
 
 function readyCard() {
   return `
     <h1>Leaf on the Light</h1>
-    <p class="tag">You are one leaf, and the wind is going east.<br>
+    <p class="tag">The air is still and nothing is coming to help you.<br>
       Sunbeams are stacks of a hundred slivers of light — drink one and you rise a little.
-      Every sliver you swallow is gone for good.</p>
+      Every sliver you swallow is gone for good, and the angle you hold the blade at
+      is the only say you get.</p>
     ${CONTROLS}
     <button class="cta" id="go">Let go of the branch</button>
     <p class="note">Touch works too: drag left or right to turn the blade.</p>`;
@@ -56,7 +58,7 @@ function deadCard(s) {
   const record = !!s.record;
   return `
     <h1>${record ? 'Furthest yet' : 'Grounded'}</h1>
-    <p class="tag">${record ? 'Nothing has ever drifted this far.' : 'The wind put you down. Try a different line.'}</p>
+    <p class="tag">${record ? 'Nothing has ever glided this far.' : 'The ground found you. Try a different line.'}</p>
     <div class="scores">
       <div class="stat"><b>${s.distance}</b><span>metres</span></div>
       <div class="stat gold"><b>${s.energy}</b><span>light</span></div>

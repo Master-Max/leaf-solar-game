@@ -4,7 +4,7 @@
 export const PX_PER_M = 32;
 
 /** Metres of distance at which the difficulty ramp tops out. */
-export const RAMP_METRES = 3000;
+export const RAMP_METRES = 1200;
 
 export const PHYS = {
   gravity: 820,
@@ -37,20 +37,13 @@ export const BEAM = {
   /** How far up and down the column the leaf can pull light in, in segments. */
   reach: 36,
   segHeightStart: 21,
-  segHeightEnd: 13,
-  gapStart: 640,
-  gapEnd: 1500,
+  segHeightEnd: 15,
+  gapStart: 620,
+  gapEnd: 1800,
   gapJitter: 0.26,
   clearanceMin: 40,
   clearanceMax: 230,
   firstX: 560,
-};
-
-export const WIND = {
-  base: 85,
-  /** Extra px/s of tailwind per pixel of altitude. */
-  perAltitude: 0.045,
-  altitudeCap: 3000,
 };
 
 export const TERRAIN = {
