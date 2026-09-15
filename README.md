@@ -24,10 +24,10 @@ How the leaf flies is decided entirely by the angle you hold it at:
 
 | Blade angle | Sink | What it is good for |
 |---|---|---|
-| flat (parallel to the ground) | 150 px/s | Hanging in the air. Costs you no height, but earns you no distance either. |
-| tilted ~15° | 186 px/s | Best glide — 1.1 forward for every 1 down. This is how you cross a gap. |
-| tilted 45° | 422 px/s | Committed descent that still carries you sideways. |
-| edge-on (perpendicular) | 561 px/s | Nothing to catch the air. You drop like a stone — and inside a beam you climb like one. |
+| flat (parallel to the ground) | 106 px/s | Hanging in the air. Costs you no height, but earns you no distance either. |
+| tilted ~15° | 153 px/s | Best glide — 1.1 forward for every 1 down. This is how you cross a gap. |
+| tilted 45° | 299 px/s | Committed descent that still carries you sideways. |
+| edge-on (perpendicular) | 396 px/s | Nothing to catch the air. You drop like a stone — and inside a beam you climb like one. |
 
 The force always acts along the blade's face, which is why a tilted leaf is
 pushed sideways as well as up — and why the direction reverses when you are
