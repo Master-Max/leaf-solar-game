@@ -12,6 +12,7 @@ const readout = {
   dist: document.getElementById('hud-dist'),
   energy: document.getElementById('hud-energy'),
   alt: document.getElementById('hud-alt'),
+  speed: document.getElementById('hud-speed'),
 };
 
 const view = { w: 0, h: 0 };
@@ -134,6 +135,7 @@ function frame(now) {
     readout.dist.textContent = s.distance;
     readout.energy.textContent = s.energy;
     readout.alt.textContent = s.altitude;
+    readout.speed.textContent = Math.round(Math.hypot(game.leaf.vx, game.leaf.vy));
   }
 }
 requestAnimationFrame(frame);

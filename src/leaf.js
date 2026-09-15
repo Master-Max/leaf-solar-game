@@ -9,6 +9,7 @@ export function createLeaf(x, y) {
     angle: 0,
     angularVel: 0,
     steer: 0,
+    aoa: 0,
     /** 0..1 how brightly the leaf is glowing from absorbed light. */
     charge: 0,
 
@@ -22,26 +23,32 @@ export function createLeaf(x, y) {
       this.angularVel = approach(this.angularVel, this.steer * PHYS.maxAngularVel, PHYS.angularRate, dt);
       this.angle += this.angularVel * dt;
 
-      // Blade frame: `n` is the face normal, `t` runs along the blade.
-      const nx = Math.sin(this.angle);
-      const ny = -Math.cos(this.angle);
-      const tx = Math.cos(this.angle);
-      const ty = Math.sin(this.angle);
-
-      // The air is still, so airspeed is just how fast the leaf is going.
-      const vn = this.vx * nx + this.vy * ny;
-      const vt = this.vx * tx + this.vy * ty;
-      const fn = -PHYS.faceDrag * vn * Math.abs(vn);
-      const ft = -PHYS.edgeDrag * vt * Math.abs(vt);
-
-      // The face force points along the normal, so a tilted blade is pushed
-      // sideways as well as up: that is the glide.
-      this.vx += (fn * nx + ft * tx) * dt;
-      this.vy += (fn * ny + ft * ty + PHYS.gravity) * dt;
-
+      // Aerodynamics are driven by angle of attack: how far the blade is
+      // turned away from the air flowing over it.
       const speed = Math.hypot(this.vx, this.vy);
-      if (speed > PHYS.maxSpeed) {
-        const k = PHYS.maxSpeed / speed;
+      if (speed > 1) {
+        const heading = Math.atan2(this.vy, this.vx);
+        // Wrapped to [-PI, PI] so reversed flow behaves sensibly.
+        let aoa = heading - this.angle;
+        aoa = ((aoa + Math.PI) % TAU + TAU) % TAU - Math.PI;
+
+        const q = speed * speed;
+        const drag = (PHYS.dragMin + PHYS.dragSpan * Math.sin(aoa) ** 2) * q;
+        // Lift peaks at 45 degrees of attack and vanishes edge-on and broadside.
+        const lift = PHYS.lift * Math.sin(2 * aoa) * q;
+
+        // Unit vectors along the airflow and across it.
+        const ux = this.vx / speed;
+        const uy = this.vy / speed;
+        this.vx += (-drag * ux + lift * uy) * dt;
+        this.vy += (-drag * uy - lift * ux) * dt;
+        this.aoa = aoa;
+      }
+      this.vy += PHYS.gravity * dt;
+
+      const now = Math.hypot(this.vx, this.vy);
+      if (now > PHYS.maxSpeed) {
+        const k = PHYS.maxSpeed / now;
         this.vx *= k;
         this.vy *= k;
       }

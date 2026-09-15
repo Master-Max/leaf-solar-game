@@ -8,14 +8,20 @@ export const RAMP_METRES = 1200;
 
 export const PHYS = {
   gravity: 410,
-  // Flat-plate aerodynamics. A blade resists air hitting its face far more
-  // than air sliding along its edge, and that ratio is the whole game:
-  // terminal sink is 106 px/s held flat, 396 px/s held edge-on. The force acts
-  // along the blade's normal, so any tilt turns some of the fall into glide.
-  faceDrag: 0.03644,
-  edgeDrag: 0.00261,
+  // Thin-aerofoil model, driven by angle of attack: the angle between the
+  // blade and the air actually flowing over it.
+  //   drag  opposes the airflow,           Cd = dragMin + dragSpan * sin^2(a)
+  //   lift  acts across it and turns you,  Cl = lift * sin(2a)
+  // Edge-on to the flow (a = 0) there is almost nothing to slow the leaf, so it
+  // builds speed; broadside (a = 90) drag peaks and lift vanishes, which is why
+  // a leaf held flat still sinks slowest from a standstill.
+  // Lift is what lets the leaf keep its energy through a turn, so this is the
+  // number that decides whether a loop closes.
+  lift: 0.040,
+  dragMin: 0.00041,
+  dragSpan: 0.03607,
   // Attitude control: the player commands a rotation rate, not a force.
-  maxAngularVel: 3.4,
+  maxAngularVel: 5.0,
   angularRate: 14,
   steerRate: 16,
   maxSpeed: 1600,
