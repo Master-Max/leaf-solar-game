@@ -7,10 +7,10 @@ export const PX_PER_M = 32;
 export const RAMP_METRES = 1200;
 
 export const PHYS = {
-  gravity: 820,
+  gravity: 410,
   // Flat-plate aerodynamics. A blade resists air hitting its face far more
   // than air sliding along its edge, and that ratio is the whole game:
-  // terminal sink is 150 px/s held flat, 560 px/s held edge-on. The force acts
+  // terminal sink is 106 px/s held flat, 396 px/s held edge-on. The force acts
   // along the blade's normal, so any tilt turns some of the fall into glide.
   faceDrag: 0.03644,
   edgeDrag: 0.00261,
